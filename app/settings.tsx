@@ -151,7 +151,7 @@ export default function SettingsScreen() {
       </Card>
 
       <Card outlined>
-        <Pressable onPress={() => void Linking.openURL('https://shahzadasalman.github.io/Rajul/privacy-policy.html')}>
+        <Pressable onPress={() => void Linking.openURL('https://candibly.com/rajul-privacy-policy')}>
           <BodyText>Privacy Policy</BodyText>
         </Pressable>
       </Card>

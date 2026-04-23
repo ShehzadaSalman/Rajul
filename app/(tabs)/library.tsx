@@ -1,4 +1,3 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -20,19 +19,7 @@ export default function LibraryScreen() {
   const entries = useStoredJson<Entry[]>(STORAGE_KEYS.userEntries, []);
   const bookmarks = useStoredJson<string[]>(STORAGE_KEYS.userBookmarks, []);
 
-  const completedLessonIds = new Set(entries.filter((e) => e.completed).map((entry) => entry.lessonId));
-
-  const completedByPillar = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const entry of entries) {
-      if (entry.completed) {
-        map[entry.pillar] = (map[entry.pillar] ?? 0) + 1;
-      }
-    }
-    return map;
-  }, [entries]);
-
-  const isLessonLocked = (pillar: string, day: number) => day > (completedByPillar[pillar] ?? 0) + 1;
+  const completedLessonIds = new Set(entries.map((entry) => entry.lessonId));
 
   const lessons = useMemo(() => {
     return LESSONS.filter((lesson) => (filter === 'all' ? true : lesson.pillar === filter)).filter((lesson) => {
@@ -72,25 +59,18 @@ export default function LibraryScreen() {
       {bookmarkedLessons.length > 0 ? (
         <Card dark>
           <SectionTitle>Bookmarked</SectionTitle>
-          {bookmarkedLessons.map((lesson) => {
-            const locked = isLessonLocked(lesson.pillar, lesson.day);
-            return (
-              <Pressable
-                key={lesson.id}
-                onPress={locked ? undefined : () => router.push({ pathname: '/lesson', params: { lessonId: lesson.id } })}
-                style={[styles.row, locked && { opacity: 0.45 }]}>
-                <View style={styles.copy}>
-                  <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>{lesson.title}</Text>
-                  <BodyText muted>{PILLARS[lesson.pillar].english}</BodyText>
-                </View>
-                {locked ? (
-                  <MaterialIcons name="lock" size={16} color={theme.colors.muted} />
-                ) : (
-                  <Text style={[styles.time, { color: theme.colors.accent }]}>{`${lesson.estimatedReadMinutes} min`}</Text>
-                )}
-              </Pressable>
-            );
-          })}
+          {bookmarkedLessons.map((lesson) => (
+            <Pressable
+              key={lesson.id}
+              onPress={() => router.push({ pathname: '/lesson', params: { lessonId: lesson.id } })}
+              style={styles.row}>
+              <View style={styles.copy}>
+                <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>{lesson.title}</Text>
+                <BodyText muted>{PILLARS[lesson.pillar].english}</BodyText>
+              </View>
+              <Text style={[styles.time, { color: theme.colors.accent }]}>{`${lesson.estimatedReadMinutes} min`}</Text>
+            </Pressable>
+          ))}
         </Card>
       ) : null}
 
@@ -101,31 +81,23 @@ export default function LibraryScreen() {
         </Card>
       ) : (
         <View style={styles.list}>
-          {lessons.map((lesson) => {
-            const locked = isLessonLocked(lesson.pillar, lesson.day);
-            return (
-              <Pressable
-                key={lesson.id}
-                onPress={locked ? undefined : () => router.push({ pathname: '/lesson', params: { lessonId: lesson.id } })}
-                style={{ opacity: locked ? 0.45 : 1 }}>
-                <Card style={styles.lessonCard}>
-                  <View style={styles.rowBetween}>
-                    <Tag label={PILLARS[lesson.pillar].english} />
-                    {completedLessonIds.has(lesson.id) ? (
-                      <Text style={[styles.check, { color: theme.colors.accent }]}>✓</Text>
-                    ) : locked ? (
-                      <MaterialIcons name="lock" size={16} color={theme.colors.muted} />
-                    ) : null}
-                  </View>
-                  <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>{lesson.title}</Text>
-                  <BodyText muted numberOfLines={2}>
-                    {lesson.body}
-                  </BodyText>
-                  <Text style={[styles.time, { color: theme.colors.muted }]}>{`${lesson.estimatedReadMinutes} min read`}</Text>
-                </Card>
-              </Pressable>
-            );
-          })}
+          {lessons.map((lesson) => (
+            <Pressable
+              key={lesson.id}
+              onPress={() => router.push({ pathname: '/lesson', params: { lessonId: lesson.id } })}>
+              <Card style={styles.lessonCard}>
+                <View style={styles.rowBetween}>
+                  <Tag label={PILLARS[lesson.pillar].english} />
+                  {completedLessonIds.has(lesson.id) ? <Text style={[styles.check, { color: theme.colors.accent }]}>✓</Text> : null}
+                </View>
+                <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>{lesson.title}</Text>
+                <BodyText muted numberOfLines={2}>
+                  {lesson.body}
+                </BodyText>
+                <Text style={[styles.time, { color: theme.colors.muted }]}>{`${lesson.estimatedReadMinutes} min read`}</Text>
+              </Card>
+            </Pressable>
+          ))}
         </View>
       )}
     </RajulScreen>
