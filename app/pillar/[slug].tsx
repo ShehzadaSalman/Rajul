@@ -1,3 +1,4 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -15,7 +16,8 @@ export default function PillarDetailScreen() {
   const pillar = PILLARS[slug] ?? PILLARS.quwwah;
   const lessons = getLessonsByPillar(pillar.key);
   const entries = useStoredJson<Entry[]>(STORAGE_KEYS.userEntries, []);
-  const completed = entries.filter((entry) => entry.pillar === pillar.key).length;
+  const completed = entries.filter((entry) => entry.pillar === pillar.key && entry.completed).length;
+  const unlockedDay = completed + 1;
 
   return (
     <RajulScreen contentContainerStyle={styles.content}>
@@ -32,12 +34,20 @@ export default function PillarDetailScreen() {
       <View style={styles.list}>
         {lessons.map((lesson) => {
           const isComplete = entries.some((entry) => entry.lessonId === lesson.id);
+          const isLocked = lesson.day > unlockedDay;
           return (
-            <Pressable key={lesson.id} onPress={() => router.push({ pathname: '/lesson', params: { lessonId: lesson.id } })}>
+            <Pressable
+              key={lesson.id}
+              onPress={isLocked ? undefined : () => router.push({ pathname: '/lesson', params: { lessonId: lesson.id } })}
+              style={{ opacity: isLocked ? 0.45 : 1 }}>
               <Card outlined>
                 <View style={styles.rowBetween}>
                   <Tag label={`Day ${lesson.day}`} />
-                  {isComplete ? <Text style={[styles.check, { color: theme.colors.accent }]}>✓</Text> : null}
+                  {isComplete ? (
+                    <Text style={[styles.check, { color: theme.colors.accent }]}>✓</Text>
+                  ) : isLocked ? (
+                    <MaterialIcons name="lock" size={16} color={theme.colors.muted} />
+                  ) : null}
                 </View>
                 <Text style={[styles.lessonTitle, { color: theme.colors.text }]}>{lesson.title}</Text>
                 <BodyText muted>{lesson.subtitle}</BodyText>

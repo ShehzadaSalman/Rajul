@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import Reanimated, { FadeInDown } from 'react-native-reanimated';
 
 import { BodyText, Card, IconButton, ProgressBar, RajulScreen, Tag, TopBar } from '@/components/rajul-ui';
@@ -111,7 +111,15 @@ export default function LessonDetailScreen() {
             <Text style={[styles.sectionHeading, { color: theme.colors.accent }]}>Today&apos;s action</Text>
             <Text style={[styles.storyCompanion, { color: theme.colors.text }]}>{lesson.action.title}</Text>
             <BodyText>{lesson.action.description}</BodyText>
-            {lesson.action.hadithReference ? <BodyText muted>{lesson.action.hadithReference}</BodyText> : null}
+            {lesson.action.hadithReference ? (
+              lesson.action.sourceUrl ? (
+                <Pressable onPress={() => void Linking.openURL(lesson.action.sourceUrl!)}>
+                  <BodyText muted style={{ textDecorationLine: 'underline' }}>{lesson.action.hadithReference}</BodyText>
+                </Pressable>
+              ) : (
+                <BodyText muted>{lesson.action.hadithReference}</BodyText>
+              )
+            ) : null}
           </Card>
 
           <Card outlined>

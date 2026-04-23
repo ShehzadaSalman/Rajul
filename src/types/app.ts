@@ -1,6 +1,6 @@
 export type PillarKey = 'quwwah' | 'amanah' | 'sabr' | 'muruwwah';
 
-export type ReminderTime = 'fajr' | 'asr' | 'isha';
+export type ReminderTime = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
 
 export type Lesson = {
   id: string;
@@ -12,6 +12,7 @@ export type Lesson = {
     arabic: string;
     translation: string;
     reference: string;
+    sourceUrl?: string;
   };
   sahabahStory: {
     companion: string;
@@ -22,6 +23,7 @@ export type Lesson = {
     title: string;
     description: string;
     hadithReference?: string;
+    sourceUrl?: string;
   };
   estimatedReadMinutes: number;
 };

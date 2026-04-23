@@ -1,34 +1,19 @@
 import { Platform } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
+import type * as NotificationsType from 'expo-notifications';
 
 import type { ReminderTime } from '@/src/types/app';
 import { STORAGE_KEYS, getBoolean, setString } from '@/src/lib/storage';
 
-type NotificationsModule = {
-  getPermissionsAsync: () => Promise<{ granted: boolean }>;
-  requestPermissionsAsync: () => Promise<{ granted: boolean }>;
-  cancelAllScheduledNotificationsAsync: () => Promise<void>;
-  scheduleNotificationAsync: (input: unknown) => Promise<string>;
-  setNotificationHandler: (handler: unknown) => void;
-  SchedulableTriggerInputTypes: {
-    DAILY: string;
-  };
-};
+type NotificationsModule = typeof NotificationsType;
 
-function getNotificationsModule(): NotificationsModule | null {
-  if (Platform.OS === 'web') {
-    return null;
-  }
+// expo-notifications is unavailable on web and throws in Expo Go on SDK 53+
+const canNotify = Platform.OS !== 'web' && !isRunningInExpoGo();
 
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const module = require('expo-notifications') as NotificationsModule;
-    return module;
-  } catch {
-    return null;
-  }
-}
-
-const Notifications = getNotificationsModule();
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Notifications: NotificationsModule | null = canNotify
+  ? (() => { try { return require('expo-notifications') as NotificationsModule; } catch { return null; } })()
+  : null;
 
 if (Notifications) {
   Notifications.setNotificationHandler({
@@ -41,10 +26,12 @@ if (Notifications) {
   });
 }
 
-const REMINDER_SCHEDULE: Record<ReminderTime, { hour: number; minute: number; label: string }> = {
-  fajr: { hour: 5, minute: 0, label: 'Fajr' },
-  asr: { hour: 16, minute: 0, label: 'Asr' },
-  isha: { hour: 21, minute: 0, label: 'Isha' },
+const REMINDER_SCHEDULE: Record<ReminderTime, { hour: number; minute: number; label: string; time: string }> = {
+  fajr: { hour: 5, minute: 0, label: 'Fajr', time: '5:00 AM' },
+  dhuhr: { hour: 13, minute: 0, label: 'Dhuhr', time: '1:00 PM' },
+  asr: { hour: 16, minute: 0, label: 'Asr', time: '4:00 PM' },
+  maghrib: { hour: 18, minute: 30, label: 'Maghrib', time: '6:30 PM' },
+  isha: { hour: 21, minute: 0, label: 'Isha', time: '9:00 PM' },
 };
 
 export function getReminderMeta(reminderTime: ReminderTime) {
@@ -89,7 +76,7 @@ export async function scheduleDailyReminder(reminderTime: ReminderTime) {
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: `Rajul • ${meta.label} reminder`,
+      title: `Rajul \u2022 ${meta.label} reminder`,
       body: 'Your lesson is waiting. Show up before the day pulls you elsewhere.',
     },
     trigger: {

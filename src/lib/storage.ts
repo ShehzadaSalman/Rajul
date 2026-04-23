@@ -30,6 +30,7 @@ export const STORAGE_KEYS = {
 
 const listeners = new Set<Listener>();
 const secureStoreCache = new Map<string, string | undefined>();
+const jsonSnapshotCache = new Map<string, { raw: string | undefined; value: unknown }>();
 
 function notify() {
   listeners.forEach((listener) => listener());
@@ -183,10 +184,28 @@ export function useStoredBoolean(key: string, fallback = false) {
   );
 }
 
-export function useStoredJson<T>(key: string, fallback: T) {
+export function useStoredJson<T>(key: string, fallback: T): T {
   return useSyncExternalStore(
     subscribeStorage,
-    () => getJson(key, fallback),
+    (): T => {
+      const raw = getString(key);
+      const cached = jsonSnapshotCache.get(key);
+      if (cached !== undefined && cached.raw === raw) {
+        return cached.value as T;
+      }
+      let value: T;
+      if (!raw) {
+        value = fallback;
+      } else {
+        try {
+          value = JSON.parse(raw) as T;
+        } catch {
+          value = fallback;
+        }
+      }
+      jsonSnapshotCache.set(key, { raw, value });
+      return value;
+    },
     () => fallback
   );
 }

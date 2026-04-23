@@ -8,7 +8,7 @@ import { getReminderMeta, scheduleDailyReminder } from '@/src/lib/notifications'
 import type { ReminderTime } from '@/src/types/app';
 import { useAuth } from '@/providers/auth-provider';
 
-const reminderOptions: ReminderTime[] = ['fajr', 'asr', 'isha'];
+const reminderOptions: ReminderTime[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
 export default function ReminderOnboardingScreen() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function ReminderOnboardingScreen() {
                     <View style={[styles.dot, active && { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent }]} />
                     <View style={styles.optionCopy}>
                       <Text style={[styles.optionTitle, { color: theme.colors.text }]}>{meta.label}</Text>
-                      <BodyText muted>{`Daily reminder around ${meta.hour === 16 ? '4:00 PM' : meta.hour === 21 ? '9:00 PM' : '5:00 AM'}`}</BodyText>
+                      <BodyText muted>{`Daily reminder around ${meta.time}`}</BodyText>
                     </View>
                   </View>
                 </Card>

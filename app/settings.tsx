@@ -10,7 +10,7 @@ import { getReminderMeta, syncReminderState } from '@/src/lib/notifications';
 import { STORAGE_KEYS, getReflections, getReminderTime, resetRajulData, setBoolean, setName, setReminderTime, setString, useStoredBoolean, useStoredString } from '@/src/lib/storage';
 import type { ReminderTime } from '@/src/types/app';
 
-const reminderOptions: ReminderTime[] = ['fajr', 'asr', 'isha'];
+const reminderOptions: ReminderTime[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -78,7 +78,7 @@ export default function SettingsScreen() {
               <Pressable key={option} onPress={() => void handleReminderChange(option)}>
                 <Card outlined style={[styles.optionCard, active && { borderColor: theme.colors.accent }]}>
                   <Text style={[styles.optionTitle, { color: theme.colors.text }]}>{meta.label}</Text>
-                  <BodyText muted>{option === 'fajr' ? '5:00 AM' : option === 'asr' ? '4:00 PM' : '9:00 PM'}</BodyText>
+                  <BodyText muted>{meta.time}</BodyText>
                 </Card>
               </Pressable>
             );

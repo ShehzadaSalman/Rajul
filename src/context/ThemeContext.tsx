@@ -45,7 +45,7 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function RajulThemeProvider({ children }: PropsWithChildren) {
-  const [mode, setModeState] = useState<ThemeMode>((getString(STORAGE_KEYS.settingsTheme) as ThemeMode | undefined) ?? 'dark');
+  const [mode, setModeState] = useState<ThemeMode>((getString(STORAGE_KEYS.settingsTheme) as ThemeMode | undefined) ?? 'light');
 
   useEffect(() => {
     setString(STORAGE_KEYS.settingsTheme, mode);
