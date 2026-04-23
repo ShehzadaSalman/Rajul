@@ -2,7 +2,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Linking, Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { BodyText, Card, HelperText, IconButton, RajulScreen, SectionTitle, Tag, TopBar } from '@/components/rajul-ui';
 import { useTheme } from '@/src/context/ThemeContext';
@@ -147,6 +147,12 @@ export default function SettingsScreen() {
             ])
           }>
           <BodyText>Reset all data</BodyText>
+        </Pressable>
+      </Card>
+
+      <Card outlined>
+        <Pressable onPress={() => void Linking.openURL('https://shahzadasalman.github.io/Rajul/privacy-policy.html')}>
+          <BodyText>Privacy Policy</BodyText>
         </Pressable>
       </Card>
 
